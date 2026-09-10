@@ -1,75 +1,251 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mensch Hub - Key</title>
+<title>Mensch Hub — Key Access</title>
 <style>
   :root{
-    --bg:#0a0a0e; --card:#181820; --txt:#f0f0f0; --dim:#9a9aa6;
-    --accent:#227aff; --ok:#5adc78; --warn:#ffc83c; --err:#ff5a5a;
+    --acc1:#3b78ff; --acc2:#9a3cff; --ok:#5adc78; --warn:#ffc83c; --err:#ff5a66;
+    --txt:#eef0ff; --dim:#9aa3bd;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
   body{
-    background:var(--bg); color:var(--txt);
-    font-family:'Segoe UI',Arial,sans-serif;
+    background:#05060a; color:var(--txt);
+    font-family:'Segoe UI',system-ui,Arial,sans-serif;
     min-height:100vh; display:flex; align-items:center; justify-content:center;
+    overflow:hidden; position:relative;
   }
-  .card{
-    background:var(--card); border-radius:14px; padding:34px 40px;
-    width:min(420px, 92vw); text-align:center;
-    box-shadow:0 10px 40px rgba(0,0,0,.5);
-  }
-  h1{font-size:26px; margin-bottom:6px;}
-  p.sub{color:var(--dim); font-size:13px; margin-bottom:26px;}
-  .key{
-    font-family:'Consolas',monospace; font-size:34px; letter-spacing:4px;
-    background:#101018; border-radius:10px; padding:16px 10px;
-    border:1px solid #26262f; user-select:all;
-  }
-  .timer{margin-top:18px; font-size:14px; color:var(--dim);}
-  .timer b{color:var(--warn);}
-  .foot{margin-top:22px; font-size:11px; color:#555;}
+  .bg{position:fixed; inset:0; z-index:-3;
+    background:
+      radial-gradient(640px 420px at 18% 22%, rgba(59,120,255,.22), transparent 60%),
+      radial-gradient(680px 440px at 82% 80%, rgba(154,60,255,.20), transparent 60%),
+      radial-gradient(460px 340px at 72% 14%, rgba(56,255,180,.08), transparent 60%),
+      linear-gradient(160deg,#05060a,#0a0d18);}
+  .blob{position:fixed; border-radius:50%; filter:blur(90px); opacity:.5; z-index:-2;
+    animation:float 14s ease-in-out infinite;}
+  .blob.b1{width:360px;height:360px; left:-70px; top:-50px; background:#2a5cff;}
+  .blob.b2{width:320px;height:320px; right:-60px; bottom:-70px; background:#7730ff; animation-delay:-6s;}
+  .blob.b3{width:240px;height:240px; left:36%; top:8%; background:#18d8b8; opacity:.35; animation-delay:-3s;}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(26px,-30px) scale(1.08)}}
+  .grid{position:fixed; inset:0; z-index:-2; opacity:.4;
+    background-image:linear-gradient(rgba(120,140,255,.06) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(120,140,255,.06) 1px,transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 30%,transparent 78%);
+    mask-image:radial-gradient(circle at 50% 50%,#000 30%,transparent 78%);}
+  .wrap{padding:20px;}
+  .card{position:relative; width:min(460px,94vw); padding:2px; border-radius:22px;
+    background:linear-gradient(140deg,rgba(64,120,255,.7),rgba(154,60,255,.6) 45%,rgba(130,130,220,.15));
+    box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 44px rgba(60,100,255,.14);}
+  .inner{background:rgba(14,16,26,.86); border-radius:20px; padding:34px 30px 26px;
+    text-align:center; color:var(--txt);
+    -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);}
+  .kicker{font-size:11px; letter-spacing:4px; font-weight:800; color:var(--acc1);
+    text-transform:uppercase; margin-bottom:10px;}
+  h1{font-size:30px; letter-spacing:.5px; font-weight:800;}
+  .sub{color:var(--dim); font-size:13px; margin:8px 0 24px;}
+  .keybox{position:relative; cursor:copy; user-select:all;
+    font-family:Consolas,'JetBrains Mono',monospace; font-size:33px; letter-spacing:6px;
+    background:rgba(6,8,14,.82); border:1px solid rgba(120,140,255,.28); border-radius:14px;
+    padding:20px 12px; color:#fff; text-shadow:0 0 20px rgba(80,140,255,.6);
+    transition:border-color .2s, box-shadow .2s, transform .15s;}
+  .keybox:hover{border-color:rgba(130,175,255,.65); box-shadow:0 0 30px rgba(80,140,255,.28);}
+  .keybox:active{transform:scale(.99);}
+  .copyhint{font-size:11px; color:#7fe7c9; min-height:16px; margin-top:12px; opacity:0;
+    transition:opacity .25s;}
+  .copyhint.show{opacity:1;}
+  .row{display:flex; align-items:center; justify-content:center; gap:24px; margin-top:22px;}
+  .ringwrap{position:relative; width:136px; height:136px;}
+  svg{transform:rotate(-90deg); display:block;}
+  .ringcenter{position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;}
+  .ringtime{font-family:Consolas,monospace; font-size:26px; font-weight:700;}
+  .ringlabel{font-size:10px; letter-spacing:2px; color:var(--dim); text-transform:uppercase; margin-top:2px;}
+  .side{max-width:170px; text-align:left;}
+  .side .at{font-size:12px; color:var(--dim); margin-top:18px;}
+  .side .at b{font-variant-numeric:tabular-nums; color:var(--txt);}
+  .side .note{font-size:11px; color:#7b829c; margin-top:10px; line-height:1.5;}
+  .btnrow{display:flex; gap:10px; margin-top:26px; justify-content:center;}
+  button{font:inherit; font-weight:700; font-size:13px; cursor:pointer; border:none;
+    padding:11px 18px; border-radius:10px; color:#fff;
+    background:linear-gradient(120deg,var(--acc1),var(--acc2));
+    box-shadow:0 6px 20px rgba(60,100,255,.35); transition:transform .15s, box-shadow .2s;}
+  button:hover{transform:translateY(-1px); box-shadow:0 10px 26px rgba(60,100,255,.5);}
+  button.ghost{background:rgba(34,38,58,.8); box-shadow:none; color:var(--dim); border:1px solid rgba(120,140,255,.25);}
+  button.ghost:hover{color:var(--txt); box-shadow:0 6px 18px rgba(0,0,0,.4);}
+  .status{font-size:12px; color:var(--dim); margin-top:18px; min-height:34px; line-height:1.5;}
+  .status.sync{color:var(--acc1); animation:pulse 1.1s ease-in-out infinite;}
+  .status.err{color:var(--err);}
+  @keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+  .foot{margin-top:18px; font-size:10px; letter-spacing:1px; color:#565d78; text-transform:uppercase;}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Mensch Hub</h1>
-    <p class="sub">Anahtar her 5 dakikada bir yenilenir. Anahtari kopyala ve skripte gir.</p>
-    <div class="key" id="key">--</div>
-    <div class="timer">Yeni anahtara kalan s&uuml;re: <b id="time">--</b></div>
-    <div class="foot" id="status">Yükleniyor...</div>
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="inner">
+        <div class="kicker">Key Access</div>
+        <h1>Mensch Hub</h1>
+        <p class="sub">Enter the key in the script to unlock the hub. A new key is generated every 5 minutes.</p>
+
+        <div class="keybox" id="key" title="Click to copy">-- -- -- --</div>
+        <div class="copyhint" id="copyhint">Copied to clipboard!</div>
+
+        <div class="row">
+          <div class="ringwrap">
+            <svg width="136" height="136" viewBox="0 0 136 136">
+              <circle cx="68" cy="68" r="54" fill="none" stroke="rgba(120,140,255,.14)" stroke-width="7"></circle>
+              <circle id="ring" cx="68" cy="68" r="54" fill="none" stroke="#5adc78" stroke-width="7"
+                      stroke-linecap="round" stroke-dasharray="339.29" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="ringcenter">
+              <div class="ringtime" id="time">--:--</div>
+              <div class="ringlabel">to new key</div>
+            </div>
+          </div>
+          <div class="side">
+            <div class="at">Current key valid for <b id="status">...</b></div>
+            <div class="note">Auto-refreshes. When the timer hits zero the page waits for the next key.</div>
+          </div>
+        </div>
+
+        <div class="btnrow">
+          <button id="refresh">Refresh now</button>
+          <button class="ghost" id="copybtn">Copy key</button>
+        </div>
+
+        <div class="status" id="statusline">Contacting the key server...</div>
+        <div class="foot">Mensch Hub &bull; keys rotate every 5 minutes</div>
+      </div>
+    </div>
   </div>
+
 <script>
 (function(){
+  var C=2*Math.PI*54;
   var keyEl=document.getElementById('key');
   var timeEl=document.getElementById('time');
-  var stEl=document.getElementById('status');
+  var ringEl=document.getElementById('ring');
+  var stEl=document.getElementById('statusline');
+  var stText=document.getElementById('status');
+  var hintEl=document.getElementById('copyhint');
+  var current=null; var timer=null; var syncing=false;
 
-  function load(){
+  function paint(left){
+    if(left<0) left=0;
+    var f=left/300;
+    ringEl.style.strokeDashoffset=String(C*(1-f));
+    var col=left>60?'#5adc78' : left>15?'#ffc83c' : '#ff5a66';
+    ringEl.style.stroke=col;
+    ringEl.style.filter='drop-shadow(0 0 8px '+col+')';
+    var s=Math.floor(left), mm=Math.floor(s/60), ss=s%60;
+    timeEl.textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+  }
+
+  function showState(name,txt){
+    stEl.className='status '+name;
+    stEl.textContent=txt;
+  }
+
+  var timer=null; var syncing=false;
+
+  function goSync(){
+    if(syncing) return;
+    syncing=true;
+    showState('sync','Synchronizing the new key...');
+    stText.textContent='rotating now';
+    if(timer) clearInterval(timer); timer=null;
+    poll();
+  }
+
+  var pollTimer=null;
+  function poll(){
+    fetchJson(function(d){
+      if(!d) return;
+      if(d.expires && d.expires*1000>Date.now()){
+        syncing=false; if(pollTimer) clearInterval(pollTimer); pollTimer=null;
+        showFresh(d);
+      } else {
+        pollTimer=setTimeout(poll,8000);
+      }
+    });
+  }
+
+  var busy=false;
+  function fetchJson(cb){
+    if(busy) return; busy=true;
     var ts=Date.now();
-    fetch('current-key.json?ts='+ts, {cache:'no-store'})
+    fetch('current-key.json?ts='+ts,{cache:'no-store'})
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if(!d || !d.key){ stEl.textContent='Yanit hatali.'; return; }
-        keyEl.textContent=d.key;
-        stEl.textContent='Son kontrol: '+new Date().toLocaleTimeString('tr-TR');
-        if(window.__exp) clearInterval(window.__exp);
-        if(!d.expires){ stEl.textContent='Bitis bilgisi yok.'; return; }
-        window.__exp=setInterval(function(){
-          var left=Math.max(0, d.expires*1000 - Date.now());
-          var s=Math.floor(left/1000);
-          var mm=Math.floor(s/60), ss=s%60;
-          timeEl.textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
-          if(left<=0){ clearInterval(window.__exp); load(); }
-        },250);
+        busy=false;
+        if(!d || !d.key){ showState('err','Bad response from the key server.'); cb(null); return; }
+        cb(d);
       })
       .catch(function(e){
-        stEl.textContent='Baglanti hatasi: '+e.message;
+        busy=false;
+        showState('err','Can\'t reach the key server: '+e.message);
+        cb(null);
       });
   }
-  load();
-  setInterval(load, 30000);
+
+  function showFresh(d){
+    current=d;
+    keyEl.textContent=d.key;
+    var expires=d.expires||0;
+    stText.textContent='less than 5 min';
+    showState('','Ready. Key refreshes in less than 5 minutes.');
+    if(timer) clearInterval(timer); timer=null;
+    timer=setInterval(function(){
+      var left=expires*1000-Date.now();
+      if(left<=0){ clearInterval(timer); timer=null; goSync(); return; }
+      paint(left/1000);
+    },250);
+    paint((expires>0?expires*1000-Date.now():0)/1000);
+  }
+
+  function refresh(){
+    fetchJson(function(d){
+      if(!d) return;
+      if(d.expires && d.expires*1000>Date.now()){ showFresh(d); }
+      else { goSync(); }
+    });
+  }
+
+  function copyText(txt,ok){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(ok,function(){ legacyCopy(txt); ok(); });
+    } else { legacyCopy(txt); ok(); }
+  }
+  function legacyCopy(txt){
+    var ta=document.createElement('textarea');
+    ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+  }
+  function flashCopied(){
+    hintEl.classList.add('show');
+    setTimeout(function(){ hintEl.classList.remove('show'); },1400);
+  }
+
+  keyEl.addEventListener('click',function(){ if(current){ copyText(current.key,flashCopied); } });
+  document.getElementById('copybtn').addEventListener('click',function(){ if(current){ copyText(current.key,flashCopied); } });
+  document.getElementById('refresh').addEventListener('click',function(){
+    showState('sync','Refreshing...');
+    refresh();
+  });
+
+  refresh();
+  setInterval(function(){ if(!syncing) refresh(); },30000);
 })();
 </script>
 </body>
