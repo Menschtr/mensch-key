@@ -3,7 +3,7 @@
 Mensch Hub için **5 dakikada bir yenilenen** key sistemi. Tamamen ücretsiz, 7/24 çalışır (GitHub Actions + GitHub Pages).
 
 ## Nasıl çalışıyor
-- **GitHub Actions** eklenen bir GitHub secret (`KEY_SEED`) ve 5 dakikalık zaman diliminden SHA256 ile key üretir, `site/current-key.json` dosyasına yazar.
+- **GitHub Actions** eklenen bir GitHub secret (`KEY_SEED`) ve 5 dakikalık zaman diliminden SHA256 ile key üretir, `current-key.json` dosyasına yazar.
 - **GitHub Pages** bu JSON'u site olarak gösterir (`https://<kullaniciad>.github.io/mensch-key/`) — key + geri sayım.
 - **Script** (`MenschV3.3.lua`) aynı JSON'u `HttpService:GetAsync` ile çeker, girilen key ile karşılaştırır, süresi dolmuşsa reddeder.
 
@@ -13,7 +13,7 @@ Mensch Hub için **5 dakikada bir yenilenen** key sistemi. Tamamen ücretsiz, 7/
    - Name: `KEY_SEED`
    - Value: uzun, rastgele bir metin (örn. 32 karakterlik). Bu sır repo'ya hiç yazılmamalı, sadece secret olarak kalmalı.
 3. Repo → **Actions** → `rotate-key` → **Run workflow** (ilk key'i oluşturur). Bundan sonra her 5 dk'da otomatik döner.
-4. Repo → **Settings → Pages** → Source: `Deploy from a branch`, Branch: `main`, folder: `/site` → Save. (Site kökü `site/` klasörü olmalı, böylece `current-key.json` doğru adreste kalır.)
+4. Repo → **Settings → Pages** → Source: `Deploy from a branch`, Branch: `main`, folder: `/` (root) → Save. (Site kökü repo kökü olmalı, böylece `current-key.json` doğru adreste kalır.)
 5. Adresi aç: `https://<kullaniciad>.github.io/mensch-key/` → key görünmelidir.
 
 ## Script tarafı

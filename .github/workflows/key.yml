@@ -26,12 +26,11 @@ jobs:
           digest=$(printf '%s|%s' "$SEED" "$slot" | openssl dgst -sha256 | awk '{print $2}')
           key=$(printf '%s' "$digest" | cut -c1-10 | tr '[:lower:]' '[:upper:]')
           expires=$(( (slot + 1) * 300 ))
-          mkdir -p site
-          printf '{"slot":%d,"key":"%s","expires":%d}\n' "$slot" "$key" "$expires" > site/current-key.json
-          cat site/current-key.json
+          printf '{"slot":%d,"key":"%s","expires":%d}\n' "$slot" "$key" "$expires" > current-key.json
+          cat current-key.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/current-key.json
+          git add current-key.json
           if git diff --cached --quiet; then
             echo "no change; nothing to commit"
           else
