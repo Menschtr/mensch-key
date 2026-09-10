@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mensch Hub - Key</title>
+<style>
+  :root{
+    --bg:#0a0a0e; --card:#181820; --txt:#f0f0f0; --dim:#9a9aa6;
+    --accent:#227aff; --ok:#5adc78; --warn:#ffc83c; --err:#ff5a5a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:'Segoe UI',Arial,sans-serif;
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+  }
+  .card{
+    background:var(--card); border-radius:14px; padding:34px 40px;
+    width:min(420px, 92vw); text-align:center;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+  }
+  h1{font-size:26px; margin-bottom:6px;}
+  p.sub{color:var(--dim); font-size:13px; margin-bottom:26px;}
+  .key{
+    font-family:'Consolas',monospace; font-size:34px; letter-spacing:4px;
+    background:#101018; border-radius:10px; padding:16px 10px;
+    border:1px solid #26262f; user-select:all;
+  }
+  .timer{margin-top:18px; font-size:14px; color:var(--dim);}
+  .timer b{color:var(--warn);}
+  .foot{margin-top:22px; font-size:11px; color:#555;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Mensch Hub</h1>
+    <p class="sub">Anahtar her 5 dakikada bir yenilenir. Anahtari kopyala ve skripte gir.</p>
+    <div class="key" id="key">--</div>
+    <div class="timer">Yeni anahtara kalan s&uuml;re: <b id="time">--</b></div>
+    <div class="foot" id="status">Yükleniyor...</div>
+  </div>
+<script>
+(function(){
+  var keyEl=document.getElementById('key');
+  var timeEl=document.getElementById('time');
+  var stEl=document.getElementById('status');
+
+  function load(){
+    var ts=Date.now();
+    fetch('current-key.json?ts='+ts, {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d || !d.key){ stEl.textContent='Yanit hatali.'; return; }
+        keyEl.textContent=d.key;
+        stEl.textContent='Son kontrol: '+new Date().toLocaleTimeString('tr-TR');
+        if(window.__exp) clearInterval(window.__exp);
+        if(!d.expires){ stEl.textContent='Bitis bilgisi yok.'; return; }
+        window.__exp=setInterval(function(){
+          var left=Math.max(0, d.expires*1000 - Date.now());
+          var s=Math.floor(left/1000);
+          var mm=Math.floor(s/60), ss=s%60;
+          timeEl.textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+          if(left<=0){ clearInterval(window.__exp); load(); }
+        },250);
+      })
+      .catch(function(e){
+        stEl.textContent='Baglanti hatasi: '+e.message;
+      });
+  }
+  load();
+  setInterval(load, 30000);
+})();
+</script>
+</body>
+</html>
