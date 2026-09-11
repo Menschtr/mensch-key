@@ -23,8 +23,19 @@ jobs:
           SEED="${{ secrets.KEY_SEED }}"
           if [ -z "$SEED" ]; then SEED="mensch-default-seed"; fi
           slot=$(( $(date +%s) / 300 ))
-          digest=$(printf '%s|%s' "$SEED" "$slot" | openssl dgst -sha256 | awk '{print $2}')
-          key=$(printf '%s' "$digest" | cut -c1-10 | tr '[:lower:]' '[:upper:]')
+          key=$(python3 - "$SEED" "$slot" <<'PY'
+import sys
+seed, slot = sys.argv[1], int(sys.argv[2])
+def djb2(s):
+    h = 5381
+    for c in s.encode():
+        h = ((h * 33) + c) & 0xFFFFFFFF
+    return h
+h1 = djb2(seed + '|' + str(slot))
+h2 = djb2(str(slot) + '|' + seed)
+print((('%08X' % h1) + ('%08X' % h2))[:10])
+PY
+)
           expires=$(( (slot + 1) * 300 ))
           printf '{"slot":%d,"key":"%s","expires":%d}\n' "$slot" "$key" "$expires" > current-key.json
           cat current-key.json
